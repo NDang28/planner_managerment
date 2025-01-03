@@ -1,0 +1,59 @@
+- Tạo một lớp ViewModel trong thư mục `viewmodel/` cho mỗi màn hình hoặc chức năng.
+- ViewModel nên chứa:
+   - Dữ liệu cần thiết cho View (thường là LiveData hoặc StateFlow).
+   - Các hàm để xử lý tương tác của người dùng từ View.
+   - Logic để gọi Model và cập nhật dữ liệu.
+- Ví dụ:
+
+  ```kotlin
+  // viewmodel/UserViewModel.kt
+  import androidx.lifecycle.LiveData
+  import androidx.lifecycle.MutableLiveData
+  import androidx.lifecycle.ViewModel
+  import androidx.lifecycle.viewModelScope
+  import com.example.yourapp.data.model.User
+  import com.example.yourapp.data.repository.UserRepository
+  import com.example.yourapp.data.repository.UserRepositoryImpl
+  import kotlinx.coroutines.launch
+
+
+  class UserViewModel(private val userRepository : UserRepository = UserRepositoryImpl()) : ViewModel() {
+
+      private val _users = MutableLiveData<List<User>>()
+      val users: LiveData<List<User>> = _users
+
+      private val _user = MutableLiveData<User>()
+      val user : LiveData<User> = _user
+
+      private val _errorMessage = MutableLiveData<String>()
+      val errorMessage: LiveData<String> = _errorMessage
+
+
+
+      fun loadUsers() {
+          viewModelScope.launch {
+              try{
+                  val result = userRepository.getUsers()
+                  _users.value = result
+              } catch (e : Exception){
+                  _errorMessage.value = "Load data failed: ${e.message}"
+              }
+          }
+      }
+      fun loadUserById(id : Int){
+          viewModelScope.launch {
+              try{
+                  val result = userRepository.getUserById(id)
+                  if(result != null){
+                      _user.value = result
+                  }else{
+                      _errorMessage.value = "User with id $id not found"
+                  }
+
+              } catch (e : Exception){
+                  _errorMessage.value = "Load data failed: ${e.message}"
+              }
+          }
+      }
+  }
+  ```

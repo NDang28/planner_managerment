@@ -1,0 +1,123 @@
+ - Trong Activity hoặc Fragment (trong thư mục `ui/`), bạn sẽ:
+    - Lấy một instance của ViewModel.
+    - Observe (quan sát) LiveData từ ViewModel để cập nhật giao diện khi dữ liệu thay đổi.
+    - Gọi các hàm trong ViewModel khi người dùng tương tác với giao diện (ví dụ: click button, nhập text).
+ - Ví dụ (trong `ui/activities/MainActivity.kt`):
+
+   ```kotlin
+   // ui/activities/MainActivity.kt
+   import android.os.Bundle
+   import android.widget.TextView
+   import androidx.appcompat.app.AppCompatActivity
+   import androidx.lifecycle.ViewModelProvider
+   import com.example.yourapp.R
+   import com.example.yourapp.viewmodel.UserViewModel
+   import com.example.yourapp.databinding.ActivityMainBinding
+
+
+   class MainActivity : AppCompatActivity() {
+       private lateinit var viewModel: UserViewModel
+       private lateinit var binding: ActivityMainBinding
+
+       override fun onCreate(savedInstanceState: Bundle?) {
+           super.onCreate(savedInstanceState)
+
+            binding = ActivityMainBinding.inflate(layoutInflater)
+           setContentView(binding.root)
+
+           viewModel = ViewModelProvider(this)[UserViewModel::class.java]
+           val listData = binding.listData
+           val detailData = binding.detailData
+           val errorText = binding.errorText
+           val btnLoad = binding.btnLoad
+           val btnDetail = binding.btnDetail
+
+           viewModel.users.observe(this){
+               var s = "";
+               it.forEach { user ->
+                   s += "${user.name}\n"
+               }
+               listData.text = s;
+           }
+           viewModel.user.observe(this){
+               detailData.text = it.name;
+           }
+           viewModel.errorMessage.observe(this){
+               errorText.text = it;
+           }
+
+           btnLoad.setOnClickListener {
+              viewModel.loadUsers();
+           }
+
+           btnDetail.setOnClickListener {
+              viewModel.loadUserById(1)
+           }
+       }
+   }
+   ```
+  - `activity_main.xml`:
+    ```xml
+      <?xml version="1.0" encoding="utf-8"?>
+      <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:app="http://schemas.android.com/apk/res-auto"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          tools:context=".ui.activities.MainActivity">
+
+          <Button
+              android:id="@+id/btnLoad"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="16dp"
+              android:layout_marginTop="16dp"
+              android:text="Load"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintTop_toTopOf="parent" />
+          <Button
+              android:id="@+id/btnDetail"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="16dp"
+              android:layout_marginTop="16dp"
+              android:text="Load Detail"
+              app:layout_constraintStart_toEndOf="@+id/btnLoad"
+              app:layout_constraintTop_toTopOf="parent" />
+
+          <TextView
+              android:id="@+id/listData"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="16dp"
+              android:layout_marginTop="16dp"
+              android:layout_marginEnd="16dp"
+              android:text="List"
+              app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintTop_toBottomOf="@+id/btnLoad" />
+          <TextView
+              android:id="@+id/detailData"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="16dp"
+              android:layout_marginTop="16dp"
+              android:layout_marginEnd="16dp"
+              android:text="Detail"
+              app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintTop_toBottomOf="@+id/listData" />
+
+          <TextView
+              android:id="@+id/errorText"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="16dp"
+              android:layout_marginTop="16dp"
+              android:layout_marginEnd="16dp"
+              android:text="Error"
+              app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintTop_toBottomOf="@+id/detailData" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
+   ```

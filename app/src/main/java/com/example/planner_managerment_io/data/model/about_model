@@ -1,0 +1,12 @@
+- Xác định các entity (dữ liệu) cần thiết cho ứng dụng của bạn.
+- Tạo các data class (hoặc class thường) trong thư mục `data/model/` để đại diện cho entity.
+- Ví dụ:
+
+ ```kotlin
+ // data/model/User.kt
+ data class User(
+     val id: Int,
+     val name: String,
+     val email: String
+ )
+ ```

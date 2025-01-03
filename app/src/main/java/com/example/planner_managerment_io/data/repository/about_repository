@@ -1,0 +1,40 @@
+- Tạo Repository (trong `data/repository`) để truy vấn dữ liệu từ các nguồn khác nhau.
+- Tạo các Interface cho các Repository
+- Tạo implement cho các Interface Repository đó
+
+```kotlin
+ //data/repository/UserRepository.kt
+ interface UserRepository {
+   suspend fun getUsers(): List<User>
+   suspend fun getUserById(id:Int): User?
+ }
+```
+```kotlin
+   // data/repository/UserRepositoryImpl.kt
+  import kotlinx.coroutines.Dispatchers
+  import kotlinx.coroutines.withContext
+   class UserRepositoryImpl : UserRepository {
+       override suspend fun getUsers(): List<User> {
+           return withContext(Dispatchers.IO){
+              // Thực hiện call api ở đây, data fetch từ database....
+              // Ví dụ : Fake Data
+               listOf(
+                   User(1, "John Doe", "john.doe@example.com"),
+                   User(2, "Jane Smith", "jane.smith@example.com")
+               )
+           }
+       }
+         override suspend fun getUserById(id: Int): User? {
+           return withContext(Dispatchers.IO){
+               // Thực hiện call api ở đây, data fetch từ database....
+               // Ví dụ : Fake Data
+                if(id == 1){
+                 User(1, "John Doe", "john.doe@example.com")
+                }
+                else{
+                    null
+                }
+           }
+         }
+ }
+```
